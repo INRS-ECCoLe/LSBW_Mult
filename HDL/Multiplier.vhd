@@ -41,7 +41,7 @@ entity Mult_FL_E2 is
 end Mult_FL_E2;
 
 architecture Behavioral of Mult_FL_E2 is
-    constant ZERO_VEC: STD_LOGIC_VECTOR (BITWIDTH+1 downto 0):= (others => '0');
+    constant ZERO_VEC: STD_LOGIC_VECTOR (BITWIDTH-1 downto 0):= (others => '0');
     constant EXPONENT_WIDTH: INTEGER := 2;
     type PARTIAL_SUM_ARRAY_T is array (0 to 2**(EXPONENT_WIDTH+1)) of STD_LOGIC_VECTOR(2*MANTISSA_WIDTH-1 downto 0);
     signal partial_sum_array : PARTIAL_SUM_ARRAY_T := (others => (others => '0'));
@@ -50,7 +50,7 @@ architecture Behavioral of Mult_FL_E2 is
     signal mult_result : STD_LOGIC_VECTOR (4 downto 0);
     signal mult_result_s : STD_LOGIC_VECTOR (4 downto 0);
     signal mult_result_p : STD_LOGIC_VECTOR (4 downto 0);
-    signal decoded_mult_res : STD_LOGIC_VECTOR (9 downto 0);
+    signal decoded_mult_res : STD_LOGIC_VECTOR (BITWIDTH-2 downto 0);
     signal wr_conf_s : STD_LOGIC;
     signal wr_conf_p : STD_LOGIC;
     signal c_sign : STD_LOGIC; -- sign bit of the coeficient
@@ -68,6 +68,8 @@ architecture Behavioral of Mult_FL_E2 is
     signal mantissa_product : STD_LOGIC_VECTOR (2*MANTISSA_WIDTH-1 downto 0);
     
 begin
+
+    decoded_mult_res <= decoded_result_t(2**(EXPONENT_WIDTH+1) + MANTISSA_WIDTH - 3 downto 2**(EXPONENT_WIDTH+1) + MANTISSA_WIDTH - BITWIDTH -2)
 
     INOUT_BUFS: if INOUT_BUF_EN = True generate
     process(clk)
