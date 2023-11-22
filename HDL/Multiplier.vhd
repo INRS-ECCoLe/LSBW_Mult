@@ -12,7 +12,7 @@
 --  Edge Computing, Communication and Learning Lab (ECCoLE) 
 --
 --  Author: Shervin Vakili, INRS University
---  Project: Reconfig MAC 
+--  Project: Internal Float Approximate Multiplier
 --  Creation Date: 2023-11-16
 --  Module Name: Mult_FL_E2 - Behavioral 
 --  Description: INT8 multiplier with internal float approximation with exponent of 2 bits
