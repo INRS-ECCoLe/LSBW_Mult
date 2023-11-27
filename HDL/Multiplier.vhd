@@ -32,7 +32,7 @@ use IEEE.std_logic_arith.ALL;
 entity Mult_FL_E2 is
     generic(BITWIDTH : integer:= 8;   -- total bit width if operands and result
             MANTISSA_WIDTH : integer := 3;
-            PARTIAL_PRODUCT_WIDTH : integer:= 6;
+            PARTIAL_PRODUCT_WIDTH : integer:= 4;
             INOUT_BUF_EN : boolean:= True);
     Port ( a_i : in STD_LOGIC_VECTOR(BITWIDTH-1 downto 0);  -- Mult input 1
            b_i : in STD_LOGIC_VECTOR(BITWIDTH-1 downto 0);  -- Mult input 2

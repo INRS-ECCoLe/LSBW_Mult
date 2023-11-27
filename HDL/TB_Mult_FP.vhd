@@ -14,7 +14,7 @@
 --  Author: Shervin Vakili, INRS University
 --  Project: Internal Float Approximate Multiplier
 --  Creation Date: 2023-11-21
---  Description: Testbench for INT8 Multiplier
+--  Description: Testbench for floating point Multiplier
 ------------------------------------------------------------------------------------------------
 
 
@@ -38,11 +38,11 @@ use ieee.math_real.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity TB_Mult_INT8 is
+entity TB_Mult_FP is
 --  Port ( );
-end TB_Mult_INT8;
+end TB_Mult_FP;
 
-architecture Behavioral of TB_Mult_INT8 is
+architecture Behavioral of TB_Mult_FP is
     constant BITWIDTH : integer := 8;
     constant clk_period : time := 10 ns;
     signal a_count: unsigned (BITWIDTH-1 downto 0);
@@ -50,7 +50,7 @@ architecture Behavioral of TB_Mult_INT8 is
     signal result: std_logic_vector (BITWIDTH-1 downto 0);
     signal result_signed: signed (BITWIDTH-1 downto 0);
     signal clk, rst         : STD_LOGIC;
-    file output_lut_file    : text open write_mode is "../Emulation_Files/LUT_INT8_FP.h";    
+    file output_lut_file    : text open write_mode is "../Emulation_Files/LUT_FP8.h";    
 
 
     component Mult_FL_E2 is
