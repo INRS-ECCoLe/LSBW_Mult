@@ -37,18 +37,18 @@ entity Mult_FL_E2 is
     Port ( a_i : in STD_LOGIC_VECTOR(BITWIDTH-1 downto 0);  -- Mult input 1
            b_i : in STD_LOGIC_VECTOR(BITWIDTH-1 downto 0);  -- Mult input 2
            clk, rst : in STD_LOGIC;
-           result_o : out STD_LOGIC_VECTOR (BITWIDTH-1 downto 0)
+           result_o : out STD_LOGIC_VECTOR (9 downto 0)
            );
 end Mult_FL_E2;
 
 architecture Behavioral of Mult_FL_E2 is
-    constant ZERO_VEC: STD_LOGIC_VECTOR (BITWIDTH-1 downto 0):= (others => '0');
+    constant ZERO_VEC: STD_LOGIC_VECTOR (9 downto 0):= (others => '0');
     constant EXPONENT_WIDTH: INTEGER := 2;
     type PARTIAL_SUM_ARRAY_T is array (0 to 2**(EXPONENT_WIDTH+1)) of STD_LOGIC_VECTOR(2*MANTISSA_WIDTH-1 downto 0);
     signal partial_sum_array : PARTIAL_SUM_ARRAY_T := (others => (others => '0'));
     signal decoded_result_t : STD_LOGIC_VECTOR(2**(EXPONENT_WIDTH+1) + PARTIAL_PRODUCT_WIDTH - 3 downto 0);
 
-    signal decoded_mult_res : STD_LOGIC_VECTOR (BITWIDTH-2 downto 0);
+    signal decoded_mult_res : STD_LOGIC_VECTOR (8 downto 0);
     signal a_mantissa : STD_LOGIC_VECTOR (MANTISSA_WIDTH-1 downto 0);
     signal a_mantissa_t : STD_LOGIC_VECTOR (MANTISSA_WIDTH-1 downto 0);
     signal a_exponent : STD_LOGIC_VECTOR (EXPONENT_WIDTH-1 downto 0);
@@ -64,7 +64,7 @@ architecture Behavioral of Mult_FL_E2 is
     
 begin
 
-    decoded_mult_res <= decoded_result_t(2**(EXPONENT_WIDTH+1) + PARTIAL_PRODUCT_WIDTH - 3 downto 2**(EXPONENT_WIDTH+1) + PARTIAL_PRODUCT_WIDTH - BITWIDTH - 1);
+    decoded_mult_res <= decoded_result_t;--(2**(EXPONENT_WIDTH+1) + PARTIAL_PRODUCT_WIDTH - 3 downto 2**(EXPONENT_WIDTH+1) + PARTIAL_PRODUCT_WIDTH - BITWIDTH - 1);
 
     INOUT_BUFS: if INOUT_BUF_EN = True generate
     process(clk)
@@ -123,6 +123,7 @@ begin
 
         -- Mantissa Multiplication
         mantissa_product <= a_mantissa * b_mantissa;
+        --mantissa_product_q <= (mantissa_product(2*MANTISSA_WIDTH-1 downto 2*MANTISSA_WIDTH - PARTIAL_PRODUCT_WIDTH) &'1);
 
         -- Add exponents
         exponent_sum <= ('0' & a_exponent) + ('0' & b_exponent);
@@ -133,11 +134,15 @@ begin
         process(mantissa_product, exponent_sum)
         begin
             decoded_result_t <= (others => '0');
-            for ii in 0 to 2**(EXPONENT_WIDTH+1)-2 loop
-                if ii = conv_integer(exponent_sum) then
-                    decoded_result_t (ii + PARTIAL_PRODUCT_WIDTH -1 downto ii) <= mantissa_product(2*MANTISSA_WIDTH-1 downto 2*MANTISSA_WIDTH - PARTIAL_PRODUCT_WIDTH);
-                end if;
-            end loop;
+            if conv_integer(exponent_sum) = 0 then
+                decoded_result_t (PARTIAL_PRODUCT_WIDTH -1 downto 0) <= mantissa_product(2*MANTISSA_WIDTH-1 downto 2*MANTISSA_WIDTH - PARTIAL_PRODUCT_WIDTH);
+            else
+                for ii in 1 to 2**(EXPONENT_WIDTH+1)-2 loop
+                    if ii = conv_integer(exponent_sum) then
+                        decoded_result_t (ii + PARTIAL_PRODUCT_WIDTH -1 downto ii-1) <= (mantissa_product(2*MANTISSA_WIDTH-1 downto 2*MANTISSA_WIDTH - PARTIAL_PRODUCT_WIDTH) & '1');
+                    end if;
+                end loop;
+            end if;
         end process;
 
 --        decoded_mult_res <= (     mantissa_product(2*MANTISSA_WIDTH-1 downto 3) & "0000000")   when exponent_sum = "110" else
