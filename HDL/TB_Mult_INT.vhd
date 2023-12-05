@@ -55,7 +55,6 @@ architecture Behavioral of TB_Mult_INT8 is
 
     component approximate_mult is
         generic(REFINEMENT_PART : INTEGER:= 3;   -- which solution (part of partial products) to be used for accuracy refinement
-                ADD_BIAS : BOOLEAN:= True;
                 INOUT_BUF_EN : BOOLEAN:= True);
         Port ( a_i : in STD_LOGIC_VECTOR(7 downto 0);  -- Mult input 1
                b_i : in STD_LOGIC_VECTOR(7 downto 0);  -- Mult input 2
@@ -97,7 +96,7 @@ begin
                 a_count <= (others => '0');
                 b_count <= (others => '0');
             else
-                result_normalized := conv_integer(result_signed) * (2**(BITWIDTH-3));
+                result_normalized := conv_integer(result_signed) * (2**(BITWIDTH-1));
                 if (conv_integer(a_count) = 0 and conv_integer(b_count) = 0) then
                     write(row,string'("#include <stdint.h>"), left, 1);
                     writeline(output_lut_file, row);
@@ -135,8 +134,7 @@ begin
 
 
     MUL_INST: approximate_mult
-        generic map (REFINEMENT_PART => 1,   -- which solution (part of partial products) to be used for accuracy refinement
-                    ADD_BIAS => False,
+        generic map (REFINEMENT_PART => 0,   -- which solution (part of partial products) to be used for accuracy refinement
                     INOUT_BUF_EN => True)
         Port map( a_i => std_logic_vector(a_count),  -- Mult input 1
                b_i => std_logic_vector(b_count),  -- Mult input 2
