@@ -47,8 +47,8 @@ architecture Behavioral of TB_Mult_INT8 is
     constant clk_period : time := 10 ns;
     signal a_count: unsigned (BITWIDTH-1 downto 0);
     signal b_count: unsigned (BITWIDTH-1 downto 0);
-    signal result: std_logic_vector (7 downto 0);
-    signal result_signed: signed (7 downto 0);
+    signal result: std_logic_vector (14 downto 0);
+    signal result_signed: signed (14 downto 0);
     signal clk, rst         : STD_LOGIC;
     file output_lut_file    : text open write_mode is "../Emulation_Files/LUT_INT8_FP.h";    
 
@@ -59,7 +59,7 @@ architecture Behavioral of TB_Mult_INT8 is
         Port ( a_i : in STD_LOGIC_VECTOR(7 downto 0);  -- Mult input 1
                b_i : in STD_LOGIC_VECTOR(7 downto 0);  -- Mult input 2
                clk, rst : in STD_LOGIC;
-               result_o : out STD_LOGIC_VECTOR (7 downto 0)
+               result_o : out STD_LOGIC_VECTOR (14 downto 0)
                );
     end component;
 
@@ -96,7 +96,7 @@ begin
                 a_count <= (others => '0');
                 b_count <= (others => '0');
             else
-                result_normalized := conv_integer(result_signed) * (2**(BITWIDTH-1));
+                result_normalized := conv_integer(result_signed) ;
                 if (conv_integer(a_count) = 0 and conv_integer(b_count) = 0) then
                     write(row,string'("#include <stdint.h>"), left, 1);
                     writeline(output_lut_file, row);
@@ -143,21 +143,6 @@ begin
                result_o => result
                );
 
-
---    MUL_INST: Mult_FL_E2 
---        generic map(
---            BITWIDTH                => 8,   -- total bit width if operands and result
---            MANTISSA_WIDTH          => 3,
---            PARTIAL_PRODUCT_WIDTH   => 3,
---            INOUT_BUF_EN            => False
---            )
---        Port map( 
---            a_i         => std_logic_vector(a_count),  -- Mult input 1
---            b_i         => std_logic_vector(b_count),  -- Mult input 2
---            clk         => clk,
---            rst         => rst,
---            result_o    => result
---    );
     result_signed <= signed(result);
 
 

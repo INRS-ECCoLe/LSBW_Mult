@@ -1,3 +1,25 @@
+---------------------------------------------------------------------------------------------------
+--                __________
+--    ______     /   ________      _          ______
+--   |  ____|   /   /   ______    | |        |  ____|
+--   | |       /   /   /      \   | |        | |
+--   | |____  /   /   /        \  | |        | |____
+--   |  ____| \   \   \        /  | |        |  ____|   
+--   | |       \   \   \______/   | |        | |
+--   | |____    \   \________     | |_____   | |____
+--   |______|    \ _________      |_______|  |______|
+--
+--  Edge Computing, Communication and Learning Lab (ECCoLe) 
+--
+--  Author: Shervin Vakili, INRS University
+--  Project: Baugh-Wooley Segmented Approximate Multiplier
+--  Creation Date: 2023-11-16
+--  Module Name: approximate_mult - Behavioral 
+--  Description: Approximate signed multiplier based of four 3x3 segmented multiplication and 
+--               Baough-Wooley algorithm.
+---------------------------------------------------------------------------------------------------
+
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 --use IEEE.STD_LOGIC_SIGNED.ALL;
@@ -14,14 +36,14 @@ entity approximate_mult is
     Port ( a_i : in STD_LOGIC_VECTOR(7 downto 0);  -- Mult input 1
            b_i : in STD_LOGIC_VECTOR(7 downto 0);  -- Mult input 2
            clk, rst : in STD_LOGIC;
-           result_o : out STD_LOGIC_VECTOR (7 downto 0)
+           result_o : out STD_LOGIC_VECTOR (10 downto 0)
            );
 end approximate_mult;
 
 architecture Behavioral of approximate_mult is
     signal a            : STD_LOGIC_VECTOR(7 downto 0);
     signal b            : STD_LOGIC_VECTOR(7 downto 0);
-    signal result_temp  : STD_LOGIC_VECTOR(7 downto 0);  -- Mult input 2
+    signal result_temp  : STD_LOGIC_VECTOR(10 downto 0);  -- Mult input 2
     signal ps1_term1    : STD_LOGIC_VECTOR(4 downto 0);
     signal ps1_term2    : STD_LOGIC_VECTOR(4 downto 0);
     signal ps1_term3    : STD_LOGIC_VECTOR(4 downto 0);
@@ -34,17 +56,32 @@ architecture Behavioral of approximate_mult is
     signal ps3_term2    : STD_LOGIC_VECTOR(5 downto 0);
     signal ps3_term3    : STD_LOGIC_VECTOR(5 downto 0);
     signal ps3          : STD_LOGIC_VECTOR(5 downto 0);
-
     signal ps4_term1    : STD_LOGIC_VECTOR(5 downto 0);
     signal ps4_term2    : STD_LOGIC_VECTOR(5 downto 0);
     signal ps4_term3    : STD_LOGIC_VECTOR(5 downto 0);
     signal ps4_term4    : STD_LOGIC_VECTOR(5 downto 0);
     signal ps4          : STD_LOGIC_VECTOR(5 downto 0);
 
+    signal ps5_term1    : STD_LOGIC_VECTOR(2 downto 0);
+    signal ps5_term2    : STD_LOGIC_VECTOR(2 downto 0);
+    signal ps5          : STD_LOGIC_VECTOR(2 downto 0);
+
 begin
     --result_o <= a + b + c;
-    a <= a_i;
-    b <= b_i;
+    process(clk)
+    begin
+        if (rising_edge(clk)) then
+            if rst = '1' then
+                a <= (others => '0');
+                b <= (others => '0');
+                result_o <= (others => '0');
+            else
+                a <= a_i;
+                b <= b_i;
+                result_o <= result_temp;
+            end if;
+        end if;
+    end process;
 
     -- PS1
     ps1_term1   <= ("00" & not(a(5) and b(7)) & (a(5) and b(6)) & (a(5) and b(5))       );
@@ -65,72 +102,23 @@ begin
     ps3         <= ps3_term1 + ps3_term2 + ps3_term3;
 
     --PS4
-    PS4_0: if REFINEMENT_PART = 0 generate
-        ps4 <= (others => '0');
-    end generate;
-    PS4_1: if REFINEMENT_PART = 1 generate
-        ps4_term1   <= ("00" & (a(1) and b(6))  & "000"         );
-        ps4_term2   <= ('0'  & (a(4) and b(4)) & (a(4) and b(3)) & "000"   );
-        ps4_term3   <= ("00" & (a(6) and b(1)) & "000"         );
-        ps4_term4   <= ("00" & (a(3) and b(4)) &  "000"         );
-        ps4         <= ps4_term1 + ps4_term2 + ps4_term3 + ps4_term4;
+    ps4_term1   <= ("000" & (a(2) and b(4)) & (a(2) and b(3)) & (a(2) and b(2)));
+    ps4_term2   <= ("00"  & (a(3) and b(4)) & (a(3) and b(3)) & (a(3) and b(2)) & '0'   );
+    ps4_term3   <= ('0'   & (a(4) and b(4)) & (a(4) and b(3)) & (a(4) and b(2)) & "00"  );
+    ps4         <= ps4_term1 + ps4_term2 + ps4_term3;
 
+    --PS4
+    PS5_0: if REFINEMENT_PART = 0 generate
+        ps5 <= (others => '0');
+    end generate;
+    PS5_1: if REFINEMENT_PART = 1 generate
+        ps5_term1   <= ('0' & (a(1) and b(6)) & (a(1) and b(5)) );
+        ps5_term2   <= ('0'  & (a(6) and b(1)) & (a(6) and b(0)) );
+        ps5         <= ps5_term1 + ps5_term2;
     end generate;
     
-    PS4_2: if REFINEMENT_PART = 2 generate
-        ps4_term1   <= ("000" & (a(2) and b(4)) & (a(2) and b(3)) & (a(2) and b(2)));
-        ps4_term2   <= ("00"  & (a(3) and b(4)) & (a(3) and b(3)) & (a(3) and b(2)) & '0'   );
-        ps4_term3   <= ('0'   & (a(4) and b(4)) & (a(4) and b(3)) & (a(4) and b(2)) & "00"  );
-        ps4         <= ps4_term1 + ps4_term2 + ps4_term3;
-    end generate;
-
-
---    PS4_0: if REFINEMENT_PART = 0 generate
---        ps4 <= (others => '0');
---    end generate;
---    PS4_1: if REFINEMENT_PART = 1 generate
---        ps4_term1   <= ("00" & not(a(0) and b(7)) & (a(0) and b(6)) & (a(0) and b(5)) & (a(0) and b(4))         );
---        ps4_term2   <= ('0'  & not(a(1) and b(7)) & (a(1) and b(6)) & (a(1) and b(5)) & (a(1) and b(4)) & '0'   );
---        WITH_BIAS: if ADD_BIAS = True generate
---            ps4         <= ps4_term1 + ps4_term2 + "110010";
---        end generate;
---        NO_BIAS: if ADD_BIAS = False generate
---            ps4         <= ps4_term1 + ps4_term2;
---        end generate;
---    end generate;
     
---    PS4_2: if REFINEMENT_PART = 2 generate
---        ps4_term1   <= ("000" & (a(2) and b(4)) & (a(2) and b(3)) & (a(2) and b(2)));
---        ps4_term2   <= ("00"  & (a(3) and b(4)) & (a(3) and b(3)) & (a(3) and b(2)) & '0'   );
---        ps4_term3   <= ('0'   & (a(4) and b(4)) & (a(4) and b(3)) & (a(4) and b(2)) & "00"  );
---        ps4         <= ps4_term1 + ps4_term2 + ps4_term3;
---        WITH_BIAS: if ADD_BIAS = True generate
---            ps4         <= ps4_term1 + ps4_term2 + "110000";
---        end generate;
---        NO_BIAS: if ADD_BIAS = False generate
---            ps4         <= ps4_term1 + ps4_term2;
---        end generate;
---    end generate;
---    PS4_3: if REFINEMENT_PART = 3 generate
---        ps4_term1   <= ('0' & (a(4) and b(4)) & (a(4) and b(3)) & "000");
---        ps4_term2   <= ('0' & (a(7) and b(1)) & (a(7) and b(0)) & "000");
---        ps4         <= ps4_term1 + ps4_term2;
---        WITH_BIAS: if ADD_BIAS = True generate
---            ps4         <= ps4_term1 + ps4_term2 + "110000";
---        end generate;
---        NO_BIAS: if ADD_BIAS = False generate
---            ps4         <= ps4_term1 + ps4_term2;
---        end generate;
---    end generate;
-
-
-
-
-    result_temp <= (ps1 & "000") + ("00" & ps2) + ("00" & ps3) + ("00000" & ps4(5 downto 3));
-
-    --result_o <= ((a(7) xor b(7)) & result_temp(6 downto 0));
-    result_o <= result_temp;--((a(7) xor b(7)) & result_temp(6 downto 0));
-
+    result_temp <= (ps1 & "000000") + ("00" & ps2 & "000") + ("00" & ps3 & "000") + ("00000" & ps4) + ("000000" & ps5 & "00");
 
 
     end Behavioral;

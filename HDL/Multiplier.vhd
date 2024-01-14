@@ -9,7 +9,7 @@
 --   | |____    \   \________     | |_____   | |____
 --   |______|    \ _________      |_______|  |______|
 --
---  Edge Computing, Communication and Learning Lab (ECCoLE) 
+--  Edge Computing, Communication and Learning Lab (ECCoLe) 
 --
 --  Author: Shervin Vakili, INRS University
 --  Project: Internal Float Approximate Multiplier
@@ -128,8 +128,6 @@ begin
         -- Add exponents
         exponent_sum <= ('0' & a_exponent) + ('0' & b_exponent);
 
-
-        
         -- Decoder (Float-to-Fixed convert)
         process(mantissa_product, exponent_sum)
         begin
@@ -145,13 +143,6 @@ begin
             end if;
         end process;
 
---        decoded_mult_res <= (     mantissa_product(2*MANTISSA_WIDTH-1 downto 3) & "0000000")   when exponent_sum = "110" else
---                            ('0' & mantissa_product(2*MANTISSA_WIDTH-1 downto 3) & "000000")   when exponent_sum = "101" else
---                            ("00" & mantissa_product(2*MANTISSA_WIDTH-1 downto 3) & "00000")   when exponent_sum = "100" else
---                            ("000" & mantissa_product(2*MANTISSA_WIDTH-1 downto 3) & "0000")   when exponent_sum = "011" else
---                            ("0000" & mantissa_product(2*MANTISSA_WIDTH-1 downto 3) & "000")   when exponent_sum = "010" else
---                            ("00000" & mantissa_product(2*MANTISSA_WIDTH-1 downto 3) & "00")   when exponent_sum = "001" else
---                            ("000000" & mantissa_product(2*MANTISSA_WIDTH-1 downto 3) & "0");
     
 end Behavioral;
 
