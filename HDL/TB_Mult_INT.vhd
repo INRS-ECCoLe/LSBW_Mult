@@ -12,7 +12,7 @@
 --  ECCoLe: Edge Computing, Communication and Learning Lab 
 --
 --  Author: Shervin Vakili, INRS University
---  Project: Internal Float Approximate Multiplier
+--  Project: Baugh-Wooley Segmented Approximate Multiplier
 --  Creation Date: 2023-11-21
 --  Description: Testbench for INT8 Multiplier
 ------------------------------------------------------------------------------------------------

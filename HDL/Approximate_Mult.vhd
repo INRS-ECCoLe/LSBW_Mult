@@ -16,7 +16,7 @@
 --  Creation Date: 2023-11-16
 --  Module Name: approximate_mult - Behavioral 
 --  Description: Approximate signed multiplier based of four 3x3 segmented multiplication and 
---               Baough-Wooley algorithm.
+--               Baugh-Wooley algorithm.
 ---------------------------------------------------------------------------------------------------
 
 
